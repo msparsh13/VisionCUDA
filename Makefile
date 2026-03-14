@@ -1,13 +1,16 @@
 NVCC = nvcc
-TARGET = ./output/output
+TARGET = output/output
+
+NVCCFLAGS = -Iinclude
 
 SRC = src/main.cu \
-      $(wildcard src/cuda_kernels/*.cu) \
-      $(wildcard src/ImageTransformations/*.cu) \
-	  $(wildcard src/common/*.cpp)
+      $(wildcard src/cuda_kernels/**/*.cu) \
+      $(wildcard src/ImageTransformations/**/*.cu) \
+      $(wildcard src/common/**/*.cpp)
 
 all:
-	$(NVCC) $(SRC) -Iinclude -o $(TARGET)
+	$(NVCC) $(NVCCFLAGS) $(SRC) -o $(TARGET)
 
 clean:
-	del $(TARGET).exe
+	rm -f $(TARGET)
+

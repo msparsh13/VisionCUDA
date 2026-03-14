@@ -1,7 +1,7 @@
 enum class PaddingType
 {
-    ZERO,     
-    REPLICATE,  
-    REFLECT,    
-    VALID       
+    ZERO,
+    REPLICATE,
+    REFLECT,
+    VALID
 };

@@ -1,7 +1,6 @@
-#include "../include/negative.h"
 #include <cuda_runtime.h>
+#include "../include/negative.h"
 
-// declare kernel
 __global__ void kernel_negative(unsigned char* img, int size);
 
 void negative(unsigned char* d_img, int size)
