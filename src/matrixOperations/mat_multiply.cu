@@ -42,19 +42,19 @@ __global__ void matMultiply(
 
         if (row < N && i * TILE + tx < K)
         {
-            tileA[i * TILE + tx] = A[row * K + i * TILE + tx];
+            tileA[ty * TILE + tx] = A[row * K + i * TILE + tx];
         }
         else
         {
-            tileA[i * TILE + tx] = 0;
+            tileA[ty * TILE + tx] = 0;
         }
         if (col < M && i * TILE + ty < K)
         {
-            tileB[i * TILE + ty] = B[col + (i * TILE + ty) * M];
+            tileB[ty * TILE + tx] = B[col + (i * TILE + ty) * M];
         }
         else
         {
-            tileB[i * TILE + ty] = 0;
+            tileB[ty * TILE + tx] = 0;
         }
     
 
@@ -64,9 +64,10 @@ __global__ void matMultiply(
     {
         sum += tileA[ty * TILE + k] * tileB[k * TILE + tx];
     }
+      __syncthreads();
 }
 
-    __syncthreads();
+  
 
     if (row < N && col < M)
     {

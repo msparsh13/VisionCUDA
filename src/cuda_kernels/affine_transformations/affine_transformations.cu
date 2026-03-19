@@ -8,8 +8,8 @@ __global__ void affine_transform(
     float a, float b, float c,
     float d, float e, float f)
 {
-   int x = blockIdx.x + blockDim.x + threadIdx.x ;
-   int y = blockIdx.y + blockDim.y + threadIdx.y ;
+   int x = blockIdx.x * blockDim.x + threadIdx.x ;
+   int y = blockIdx.y * blockDim.y + threadIdx.y ;
 
    if(x>=width || y>=height) return ;
 
@@ -19,8 +19,15 @@ __global__ void affine_transform(
     int x0 = floor(src_x) ;
     int y0 = floor(src_y) ;
 
-    int dx = src_x - x0 ;
-    int dy = src_y - y0;
+    float dx = src_x - x0 ;
+    float dy = src_y - y0;
+
+
+     if (x0 < 0 || x0 >= width - 1 || y0 < 0 || y0 >= height - 1)
+    {
+        output[y * width + x] = 0;
+        return;
+    }
 
     /**
      * TODO implement multiple interpolations for such things i will use them later in pyramids id and upsampling
@@ -52,5 +59,8 @@ __global__ void affine_transform(
     (1-dx)*(1-dy)*input[y0 * width + x0] +   dx*(1-dy)*input[y0 * width + (x0+1)] +   
 
     (1-dx)*dy*input[(y0+1) * width + x0] +  dx*dy*input[(y0+1) * width + (x0+1)];
+
+     val = fminf(fmaxf(val, 0.0f), 255.0f);
+    output[y * width + x] = (unsigned char)(val);
     
 }
