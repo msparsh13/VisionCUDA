@@ -1,6 +1,6 @@
 #define TILE 16
 // currently making for 16 tile size
-__global__ void matMultiply(
+__global__ void multiply_cuda(
     float *A,
     float *B,
     float *C,
@@ -37,6 +37,7 @@ __global__ void matMultiply(
     float *tileA = shared;
     float *tileB = shared + (TILE * TILE);
     float sum = 0;
+
     for (int i = 0; i < (K + TILE - 1) / TILE /*ceil*/; ++i)
     {
 

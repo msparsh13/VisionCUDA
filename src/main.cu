@@ -14,7 +14,7 @@
 #include <cuda_runtime.h>
 
 #include "../include/histogram.h"
-
+#include "../include/affine.h"
 #include <iostream>
 
 void print_histogram_rgb(unsigned char *img, int width, int height)
@@ -48,41 +48,53 @@ void print_histogram_rgb(unsigned char *img, int width, int height)
     std::cout << "\n\n";
 }
 
-int main(int argc, char **argv)
+
+int main(int argc, char** argv)
 {
-    if (argc < 2)
-    {
+    if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " input.png\n";
         return 0;
     }
 
-    const char *inputFile = argv[1];
+    const char* inputFile = argv[1];
 
     int width, height, channels;
 
-    unsigned char *img = stbi_load(inputFile, &width, &height, &channels, 3);
-    if (!img)
-    {
-        std::cerr << "Failed to load image: " << inputFile << "\n";
+    unsigned char* img = stbi_load(inputFile, &width, &height, &channels, 3);
+    if (!img) {
+        std::cerr << "Failed to load image\n";
         return -1;
     }
 
-    std::cout << "Image Loaded: " << width << " x " << height
-              << " Channels: " << 3 << "\n";
+    std::cout << "Loaded: " << width << " x " << height << "\n";
 
-    histogram_wrap_rgb(img, width, height);
+    // -------- Allocate output --------
+    unsigned char* output = new unsigned char[width * height * 3];
 
-    const char *outputFile = "./output/hist_equalized.png";
-    if (!stbi_write_png(outputFile, width, height, 3, img, width * 3))
-    {
-        std::cerr << "Failed to save image: " << outputFile << "\n";
+    // -------- Build transform pipeline --------
+    std::vector<TransformOp> ops;
+
+    ops.push_back({TRANSLATE, 50, 30});
+    ops.push_back({ROTATE, 50 , 0});
+    ops.push_back({SHEAR,0.3, -0.3});
+    ops.push_back({TRANSLATE, 50, -50});
+
+
+    // -------- Apply affine pipeline --------
+    affine_pipeline(img, output, width, height,3, ops);
+
+    // -------- Save result --------
+    const char* outputFile = "./output/affine.png";
+
+    if (!stbi_write_png(outputFile, width, height, 3, output, width * 3)) {
+        std::cerr << "Failed to save image\n";
+    } else {
+        std::cout << "Saved: " << outputFile << "\n";
     }
-    else
-    {
-        std::cout << "Saved histogram-equalized image: " << outputFile << "\n";
-    }
 
+    // -------- Cleanup --------
     stbi_image_free(img);
+    delete[] output;
 
     return 0;
 }
