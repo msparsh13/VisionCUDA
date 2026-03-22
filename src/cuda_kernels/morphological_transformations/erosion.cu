@@ -1,11 +1,12 @@
 #include <cuda_runtime.h>
 
 #define TILE 16
-
-__global__ void conv_tiled(float* input, float* output, float* kernel, int width, int height,
-                           int kSize)
+__global__ void erosion_tiled(unsigned char *input,
+                               unsigned char *output,
+                               int width, int height,
+                               int kSize)
 {
-   int radius = kSize / 2;
+    int radius = kSize / 2;
 
     int tx = threadIdx.x;
     int ty = threadIdx.y;
@@ -16,8 +17,9 @@ __global__ void conv_tiled(float* input, float* output, float* kernel, int width
     int shared_w = TILE + 2 * radius;
     int shared_h = TILE + 2 * radius;
 
-    extern __shared__ float tile[];
+    extern __shared__ unsigned char tile[];
 
+    // Load tile + halo into shared memory
     for (int y = ty; y < shared_h; y += blockDim.y)
     {
         for (int x = tx; x < shared_w; x += blockDim.x)
@@ -36,19 +38,17 @@ __global__ void conv_tiled(float* input, float* output, float* kernel, int width
 
     if (row < height && col < width)
     {
-        float sum = 0.0f;
+        unsigned char max_val = 255;
 
         for (int ky = 0; ky < kSize; ky++)
         {
             for (int kx = 0; kx < kSize; kx++)
             {
-                float pixel = tile[(ty + ky) * shared_w + (tx + kx)];
-                float k = kernel[ky * kSize + kx];
-
-                sum += pixel * k;
+                unsigned char pixel = tile[(ty + ky) * shared_w + (tx + kx)];
+                max_val = min(max_val, pixel);
             }
         }
 
-        output[row * width + col] = sum;
+        output[row * width + col] = max_val;
     }
 }

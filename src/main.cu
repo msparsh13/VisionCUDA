@@ -15,6 +15,9 @@
 
 #include "../include/histogram.h"
 #include "../include/affine.h"
+#include "../include/grayscale.h"
+#include "../include/binarizing.h"
+#include "../include/dilation.h"
 #include <iostream>
 
 void print_histogram_rgb(unsigned char *img, int width, int height)
@@ -60,41 +63,51 @@ int main(int argc, char** argv)
 
     int width, height, channels;
 
+    // Load image as RGB (3 channels)
     unsigned char* img = stbi_load(inputFile, &width, &height, &channels, 3);
     if (!img) {
         std::cerr << "Failed to load image\n";
         return -1;
     }
+    std::cout << "Loaded: " << width << " x " << height << " x 3\n";
 
-    std::cout << "Loaded: " << width << " x " << height << "\n";
+    size_t rgbSize = width * height * 3 * sizeof(unsigned char);
+    size_t graySize = width * height * sizeof(unsigned char);
 
-    // -------- Allocate output --------
-    unsigned char* output = new unsigned char[width * height * 3];
+    // Allocate GPU memory
+    unsigned char *d_img, *d_binary, *d_dilated;
+    cudaMalloc(&d_img, rgbSize);
+    cudaMalloc(&d_binary, graySize);
+    cudaMalloc(&d_dilated, graySize);
 
-    // -------- Build transform pipeline --------
-    std::vector<TransformOp> ops;
+    // Copy RGB image to GPU
+    cudaMemcpy(d_img, img, rgbSize, cudaMemcpyHostToDevice);
 
-    ops.push_back({TRANSLATE, 50, 30});
-    ops.push_back({ROTATE, 50 , 0});
-    ops.push_back({SHEAR,0.3, -0.3});
-    ops.push_back({TRANSLATE, 50, -50});
+    // ------------------ GPU Pipeline ------------------
+    // 1️⃣ Binary thresholding
+    binary(d_img, d_binary, width, height, 100);
 
+    // 2️⃣ Dilation (kernel size = 3)
+    opening(d_binary, d_dilated, width, height, 3);
 
-    // -------- Apply affine pipeline --------
-    affine_pipeline(img, output, width, height,3, ops);
+    // Copy result back to host
+    unsigned char* output = new unsigned char[width * height];
+    cudaMemcpy(output, d_dilated, graySize, cudaMemcpyDeviceToHost);
 
-    // -------- Save result --------
-    const char* outputFile = "./output/affine.png";
-
-    if (!stbi_write_png(outputFile, width, height, 3, output, width * 3)) {
+    // Save output (1-channel)
+    const char* outputFile = "./output/binary_dilated.png";
+    if (!stbi_write_png(outputFile, width, height, 1, output, width)) {
         std::cerr << "Failed to save image\n";
     } else {
         std::cout << "Saved: " << outputFile << "\n";
     }
 
-    // -------- Cleanup --------
-    stbi_image_free(img);
+    // ------------------ Cleanup ------------------
+    cudaFree(d_img);
+    cudaFree(d_binary);
+    cudaFree(d_dilated);
     delete[] output;
+    stbi_image_free(img);
 
     return 0;
 }
