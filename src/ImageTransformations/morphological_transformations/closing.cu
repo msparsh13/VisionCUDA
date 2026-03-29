@@ -8,7 +8,7 @@ __global__ void erosion_tiled( unsigned char *input,
     unsigned char *output, int width, int height,
                            int kSize);
 
-void opening(unsigned char* d_input,
+void closing(unsigned char* d_input,
              unsigned char* d_output,
              int width, int height,
              int kSize)

@@ -9,8 +9,8 @@ SRC = src/main.cu \
       $(wildcard src/cuda_kernels/**/*.cu) \
       $(wildcard src/ImageTransformations/**/*.cu) \
       $(wildcard src/common/**/*.cpp) \
-      $(wildcard src/matrixOperations/**/*.cu) \
-      $(wildcard src/matrixOperations/*.cpp)
+      $(wildcard src/mathsOperations/**/*.cu) \
+      $(wildcard src/mathsOperations/**/*.cpp)
 
 # Only matrix operations
 MATRIX_SRC = src/main.cu \
