@@ -27,6 +27,4 @@ void dilation(unsigned char* d_img,
         height,
         kSize
     );
-
-    cudaDeviceSynchronize();
 }

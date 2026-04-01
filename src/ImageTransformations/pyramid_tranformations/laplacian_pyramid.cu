@@ -1,16 +1,17 @@
 #include <vector>
-#include<iostream>
+#include <iostream>
 #include <cuda_runtime.h>
 #include "kernels.hpp"
 #include "padding.hpp"
-#define CUDA_CHECK(msg) \
-{ \
-    cudaError_t err = cudaDeviceSynchronize(); \
-    if (err != cudaSuccess) { \
-        printf("CUDA ERROR at %s: %s\n", msg, cudaGetErrorString(err)); \
-        exit(-1); \
-    } \
-}
+#define CUDA_CHECK(msg)                                                     \
+    {                                                                       \
+        cudaError_t err = cudaDeviceSynchronize();                          \
+        if (err != cudaSuccess)                                             \
+        {                                                                   \
+            printf("CUDA ERROR at %s: %s\n", msg, cudaGetErrorString(err)); \
+            exit(-1);                                                       \
+        }                                                                   \
+    }
 
 // --- Forward declarations ---
 __global__ void conv_vertical(unsigned char *, unsigned char *, float *, int, int, int);
@@ -44,10 +45,7 @@ void pyramid_laplacian(
 
     // Build Gaussian pyramid
 
-
     pyramid_gaussian(h_input, gaussian, width, height, kSize, scale, channels, levels);
-
-
 
     dim3 block(16, 16);
 
@@ -62,8 +60,6 @@ void pyramid_laplacian(
 
     cudaMalloc(&d_kernel_Y, kSize * sizeof(float));
     cudaMemcpy(d_kernel_Y, kernelVec_Y.data(), kSize * sizeof(float), cudaMemcpyHostToDevice);
-
-
 
     for (int l = 0; l < (int)gaussian.size() - 1; l++)
     {
@@ -82,7 +78,6 @@ void pyramid_laplacian(
 
         unsigned char *d_curr, *d_next, *d_up, *d_temp, *d_blur, *d_lap;
 
-
         cudaMalloc(&d_curr, curr_size);
         cudaMalloc(&d_next, next_size);
         cudaMalloc(&d_up, curr_size);
@@ -95,23 +90,18 @@ void pyramid_laplacian(
         cudaMemcpy(d_curr, gaussian[l], curr_size, cudaMemcpyHostToDevice);
         cudaMemcpy(d_next, gaussian[l + 1], next_size, cudaMemcpyHostToDevice);
 
-
         dim3 grid((curr_w + 15) / 16, (curr_h + 15) / 16);
-
 
         upsample<<<grid, block>>>(d_next, d_up, next_w, next_h, scale, channels);
 
         conv_horizontal<<<grid, block>>>(d_up, d_temp, d_kernel_X, curr_w, curr_h, channels);
         conv_vertical<<<grid, block>>>(d_temp, d_blur, d_kernel_Y, curr_w, curr_h, channels);
 
-
-
         scale_img<<<grid, block>>>(d_blur, curr_w, curr_h, channels, scale * scale);
         subtract_img<<<grid, block>>>(d_curr, d_blur, d_lap, curr_w, curr_h, channels);
 
-
         cudaDeviceSynchronize();
-          err = cudaGetLastError();
+        err = cudaGetLastError();
         if (err != cudaSuccess)
         {
             printf("CUDA ERROR: %s\n", cudaGetErrorString(err));

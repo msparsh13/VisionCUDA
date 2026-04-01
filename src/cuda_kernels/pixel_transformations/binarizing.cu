@@ -16,3 +16,20 @@ __global__ void kernel_binary(unsigned char* img, unsigned char* out, int width,
         out[binary_idx] = 0.299f * r + 0.587f * g + 0.114f * b >= thresh ? 255 : 0;
     }
 }
+
+__global__ void kernel_binary_gray(unsigned char* img, unsigned char* out, int width, int height,
+                              int thresh)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height)
+    {
+       
+        int binary_idx = y * width + x;
+
+    
+
+        out[binary_idx] = img[binary_idx] >= thresh ? 255 : 0;
+    }
+}

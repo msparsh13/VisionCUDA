@@ -1,12 +1,12 @@
 
-__global__ void erosion_tiled( unsigned char *input,
-    unsigned char *output, int width, int height,
-                           int kSize);
-void erosion(unsigned char* d_img,
-              unsigned char* d_out,
-              int width,
-              int height,
-              int kSize)
+__global__ void erosion_tiled(unsigned char *input,
+                              unsigned char *output, int width, int height,
+                              int kSize);
+void erosion(unsigned char *d_img,
+             unsigned char *d_out,
+             int width,
+             int height,
+             int kSize)
 {
     dim3 block(16, 16);
 
@@ -25,8 +25,5 @@ void erosion(unsigned char* d_img,
         d_out,
         width,
         height,
-        kSize
-    );
-
-    cudaDeviceSynchronize();
+        kSize);
 }

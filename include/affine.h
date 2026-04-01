@@ -17,4 +17,10 @@ void affine_pipeline(unsigned char* img,
                      int channels,
                      std::vector<TransformOp> vec);
 
-               
+void convert_to_translate(float tx, float ty, float mat[9]);
+
+void convert_to_rotate(float theta, float mat[9]) ;
+
+
+void convert_to_shear(float shx, float shy, float mat[9]) ;
+

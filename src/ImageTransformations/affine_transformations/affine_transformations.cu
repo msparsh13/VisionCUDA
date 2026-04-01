@@ -4,6 +4,7 @@
 
 #define M_PI 3.14159265358979323846 /* pi */
 #include <vector>
+#include <math.h>
 #include "matrix.h"
 
 enum TransformType
@@ -90,6 +91,50 @@ void affine_pipeline(unsigned char *img,
         else if (op.type == SHEAR)
             convert_to_shear(op.v1, op.v2, temp);
 
+        float result[9];
+        multiply_cpu(temp, M, result);
+
+        for (int i = 0; i < 9; i++)
+            M[i] = result[i];
+    }
+    float M_inv[9];
+    inverse3x3(M, M_inv);
+
+    float a = M_inv[0], b = M_inv[1], c = M_inv[2];
+    float d = M_inv[3], e = M_inv[4], f = M_inv[5];
+
+    dim3 block(16, 16);
+    dim3 grid((width + 15) / 16, (height + 15) / 16);
+
+    inverse_mapping<<<grid, block>>>(
+        img, output,
+        width, height, channels,
+        a, b, c, d, e, f);
+}
+
+void affine_cuda(unsigned char *img,
+                 unsigned char *output,
+                 int width,
+                 int height,
+                 int channels,
+                 std::vector<TransformOp> vec)
+{
+    float M[9];
+    float temp[9];
+
+    create_identity(M);
+
+    for (auto &op : vec)
+    {
+        if (op.type == TRANSLATE)
+            convert_to_translate(op.v1, op.v2, temp);
+
+        else if (op.type == ROTATE)
+            convert_to_rotate(op.v1, temp);
+
+        else if (op.type == SHEAR)
+            convert_to_shear(op.v1, op.v2, temp);
+
         multiply_cpu(temp, M, M);
     }
     float M_inv[9];
@@ -98,25 +143,11 @@ void affine_pipeline(unsigned char *img,
     float a = M_inv[0], b = M_inv[1], c = M_inv[2];
     float d = M_inv[3], e = M_inv[4], f = M_inv[5];
 
-    unsigned char *d_input, *d_output;
-    size_t size = width * height * channels * sizeof(unsigned char);
-
-    cudaMalloc(&d_input, size);
-    cudaMalloc(&d_output, size);
-
-    cudaMemcpy(d_input, img, size, cudaMemcpyHostToDevice);
-
     dim3 block(16, 16);
     dim3 grid((width + 15) / 16, (height + 15) / 16);
 
     inverse_mapping<<<grid, block>>>(
-        d_input, d_output,
+        img, output,
         width, height, channels,
         a, b, c, d, e, f);
-
-    cudaDeviceSynchronize();
-    cudaMemcpy(output, d_output, size, cudaMemcpyDeviceToHost);
-
-    cudaFree(d_input);
-    cudaFree(d_output);
 }

@@ -19,7 +19,6 @@ __global__ void dilation_tiled(unsigned char *input,
 
     extern __shared__ unsigned char tile[];
 
-    // Load tile + halo into shared memory
     for (int y = ty; y < shared_h; y += blockDim.y)
     {
         for (int x = tx; x < shared_w; x += blockDim.x)

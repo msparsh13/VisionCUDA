@@ -10,7 +10,7 @@ void erosion(unsigned char* d_img,
               int height,
               int kSize);
 
-void opening(unsigned char* d_input,
-             unsigned char* d_output,
-             int width, int height,
-             int kSize);
+// void opening(unsigned char* d_input,
+//              unsigned char* d_output,
+//              int width, int height,
+//              int kSize);
