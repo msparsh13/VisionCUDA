@@ -1,11 +1,18 @@
 #include <cuda_runtime.h>
 
 #define TILE 16
+#define TILE 16
 
-__global__ void conv_tiled(float* input, float* output, float* kernel, int width, int height,
-                           int kSize)
+__global__ void conv_tiled(
+    float* input,
+    float* output,
+    float* kernel,
+    int width,
+    int height,
+    int channels,
+    int kSize)
 {
-   int radius = kSize / 2;
+    int radius = kSize / 2;
 
     int tx = threadIdx.x;
     int ty = threadIdx.y;
@@ -16,7 +23,9 @@ __global__ void conv_tiled(float* input, float* output, float* kernel, int width
     int shared_w = TILE + 2 * radius;
     int shared_h = TILE + 2 * radius;
 
-    extern __shared__ float tile[];
+    int ch = min(channels, 4);
+
+    extern __shared__ float tile[]; 
 
     for (int y = ty; y < shared_h; y += blockDim.y)
     {
@@ -28,7 +37,13 @@ __global__ void conv_tiled(float* input, float* output, float* kernel, int width
             global_x = max(0, min(global_x, width - 1));
             global_y = max(0, min(global_y, height - 1));
 
-            tile[y * shared_w + x] = input[global_y * width + global_x];
+            int global_base = (global_y * width + global_x) * channels;
+            int shared_base = (y * shared_w + x) * ch;
+
+            for (int c = 0; c < ch; c++)
+            {
+                tile[shared_base + c] = input[global_base + c];
+            }
         }
     }
 
@@ -36,19 +51,32 @@ __global__ void conv_tiled(float* input, float* output, float* kernel, int width
 
     if (row < height && col < width)
     {
-        float sum = 0.0f;
+        int out_base = (row * width + col) * channels;
+        int active_ch = min(channels, 3);
 
-        for (int ky = 0; ky < kSize; ky++)
+        for (int c = 0; c < active_ch; c++)
         {
-            for (int kx = 0; kx < kSize; kx++)
-            {
-                float pixel = tile[(ty + ky) * shared_w + (tx + kx)];
-                float k = kernel[ky * kSize + kx];
+            float sum = 0.0f;
 
-                sum += pixel * k;
+            for (int ky = 0; ky < kSize; ky++)
+            {
+                for (int kx = 0; kx < kSize; kx++)
+                {
+                    int shared_idx = ((ty + ky) * shared_w + (tx + kx)) * ch + c;
+                    float pixel = tile[shared_idx];
+                    float k = kernel[ky * kSize + kx];
+
+                    sum += pixel * k;
+                }
             }
+
+            output[out_base + c] = sum;
         }
 
-        output[row * width + col] = sum;
+        // 🔹 Preserve alpha
+        if (channels == 4)
+        {
+            output[out_base + 3] = input[out_base + 3];
+        }
     }
 }

@@ -16,13 +16,13 @@ __global__ void conv_horizontal(
 
     int x = blockIdx.x * BLOCK_SIZE + tx;
     int y = blockIdx.y * BLOCK_SIZE + ty;
-
+    int base = (y * width + x) * channels;
     int shared_x = tx + RADIUS;
 
     // load center pixel
     for (int c = 0; c < channels; c++) {
         if (x < width && y < height)
-            tile[ty][shared_x][c] = input[(y * width + x) * channels + c];
+            tile[ty][shared_x][c] = input[base + c];
         else
             tile[ty][shared_x][c] = 0;
     }
@@ -54,7 +54,7 @@ __global__ void conv_horizontal(
                 sum += tile[ty][shared_x + k][c] * kernel[RADIUS + k];
 
             sum = fminf(fmaxf(sum, 0.0f), 255.0f);
-            output[(y * width + x) * channels + c] = (unsigned char)(sum);
+            output[base + c] = (unsigned char)(sum);
         }
     }
 }
@@ -76,12 +76,12 @@ __global__ void conv_vertical(
     int y = blockIdx.y * BLOCK_SIZE + ty;
 
     int shared_y = ty + RADIUS;
-
+    int base = (y * width + x) * channels;
     // 🔹 Load center pixels
     for (int c = 0; c < channels; c++)
     {
         if (x < width && y < height)
-            tile[shared_y][tx][c] = input[(y * width + x) * channels + c];
+            tile[shared_y][tx][c] = input[base + c];
         else
             tile[shared_y][tx][c] = 0;
     }
@@ -121,7 +121,7 @@ __global__ void conv_vertical(
             // clamp to [0,255]
             sum = fminf(fmaxf(sum, 0.0f), 255.0f);
 
-            output[(y * width + x) * channels + c] = (unsigned char)(sum);
+            output[base + c] = (unsigned char)(sum);
         }
     }
 }
