@@ -15,7 +15,7 @@ __global__ void scale_img(
         int idx = (y * width + x) * channels + c;
 
         int val = img[idx] * factor;
-
+        val = max(0, min(255, val));
         img[idx] = (unsigned char)val;
     }
 }

@@ -16,7 +16,7 @@ __global__ void subtract_img(
         int idx = (y * width + x) * channels + c;
 
         int val = ((int)A[idx] - (int)B[idx]) + 128;
-
+        val = max(0, min(255, val));
         out[idx] = (unsigned char)val;
     }
 
