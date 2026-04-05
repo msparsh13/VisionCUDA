@@ -19,7 +19,7 @@ void SamplingOp::apply(unsigned char*& d_data,
         size_t new_size = new_width * new_height * channels;
         cudaMalloc(&d_out, new_size);
 
-        upsample(d_data, d_out, width, height, scale, channels);
+        upsamplefunc(d_data, d_out, width, height, scale, channels);
 
         width  = new_width;
         height = new_height;
@@ -32,7 +32,7 @@ void SamplingOp::apply(unsigned char*& d_data,
         size_t new_size = new_width * new_height * channels;
         cudaMalloc(&d_out, new_size);
 
-        downsample(d_data, d_out, width, height, scale, channels);
+        downsamplefunc(d_data, d_out, width, height, scale, channels);
 
         width  = new_width;
         height = new_height;

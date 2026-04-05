@@ -6,13 +6,7 @@
 #include <vector>
 #include <math.h>
 #include "matrix.h"
-
-enum TransformType
-{
-    TRANSLATE,
-    ROTATE,
-    SHEAR
-};
+#include "affine.h"
 
 __global__ void inverse_mapping(
     unsigned char *input,
@@ -22,12 +16,6 @@ __global__ void inverse_mapping(
     int channels,
     float a, float b, float c,
     float d, float e, float f);
-
-struct TransformOp
-{
-    TransformType type;
-    float v1, v2;
-};
 
 void create_identity(float mat[9])
 {
@@ -72,7 +60,7 @@ void affine_pipeline(unsigned char *img,
                      int width,
                      int height,
                      int channels,
-                     std::vector<TransformOp> vec)
+                     std::vector<TransformOpr> vec)
 {
     float M[9];
     float temp[9];
@@ -117,7 +105,7 @@ void affine_cuda(unsigned char *img,
                  int width,
                  int height,
                  int channels,
-                 std::vector<TransformOp> vec)
+                 std::vector<TransformOpr> vec)
 {
     float M[9];
     float temp[9];

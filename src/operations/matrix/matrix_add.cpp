@@ -1,6 +1,8 @@
 // ImageOps.cu (continue)
 #include<matOp.hpp>
 #include<matrix.h>
+#include <utility> 
+
 // 🔹 ADD
 void AddOp::apply(unsigned char*& d_data,
                   unsigned char* d_temp,

@@ -23,4 +23,4 @@ void scale(unsigned char* img,
 void mul(float* d_A,
                   float* d_B,
                   float* d_C,
-                  int M, int K, int N)
+                  int M, int K, int N) ;

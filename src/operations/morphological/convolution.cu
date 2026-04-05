@@ -3,6 +3,7 @@
 #include<convolution.h>
 #include<kernels.hpp>
 #include<padding.hpp>
+#include <utility> 
 
 __global__ void uchar_to_float(unsigned char* in, float* out, int size);
 

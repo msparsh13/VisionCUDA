@@ -2,7 +2,7 @@ __global__ void upsample(unsigned char* input , unsigned char* output , int widt
 ;
 
 
-void upsample(unsigned char* d_in,
+void upsamplefunc(unsigned char* d_in,
                     unsigned char* d_out,
                     int width,
                     int height,

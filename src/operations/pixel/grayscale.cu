@@ -1,5 +1,6 @@
 #include <grayscaleOp.hpp>
 #include <grayscale.h>
+#include <utility> 
 
 void GrayscaleOp::apply(unsigned char *&d_data,
                         unsigned char *d_temp,

@@ -16,7 +16,7 @@ __global__ void multiply_cuda(
     float *A,
     float *B,
     float *C,
-    int N, int K, int M, int tile = 3);
+    int N, int K, int M);
 
 __global__ void add_img(unsigned char *A, unsigned char *B, unsigned char *out, int width, int height, int channels);
 

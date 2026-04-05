@@ -6,8 +6,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-#include "Pipeline.hpp"
+#include "pipeline.hpp"
 #include "HistogramEqlOp.hpp"
+#include "brightnessOp.hpp"
 
 int main(int argc, char **argv)
 {
@@ -32,25 +33,30 @@ int main(int argc, char **argv)
     std::cout << "Loaded: " << width << "x" << height
               << " channels: " << channels << "\n";
 
-    // 🔹 Allocate GPU memory
-    unsigned char *d_data;
+    // 🔹 Allocate GPU memory (FIXED: use bytes)
     int size = width * height * channels;
+    unsigned char *d_data;
 
-    cudaMalloc(&d_data, size);
-    cudaMemcpy(d_data, h_img, size, cudaMemcpyHostToDevice);
+    cudaMalloc(&d_data, size * sizeof(unsigned char));
+    cudaMemcpy(d_data, h_img, size * sizeof(unsigned char), cudaMemcpyHostToDevice);
 
     // 🔹 Pipeline
     Pipeline p;
     p.init(width, height, channels);
 
-    // 🔥 Histogram Equalization
-    p.add(new HistogramEqlOp());
+    float alpha = 1.2f;  // contrast
+int beta = 30;       // brightness
+
+p.add(new BrightnessOp(alpha, beta));
 
     p.run(d_data, width, height, channels);
 
-    
+    // 🔴 IMPORTANT: wait for GPU to finish
+    cudaDeviceSynchronize();
+
+    // 🔹 Copy back
     unsigned char *h_out = new unsigned char[size];
-    cudaMemcpy(h_out, d_data, size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_out, d_data, size * sizeof(unsigned char), cudaMemcpyDeviceToHost);
 
     // 🔹 Save output
     stbi_write_png("hist_eq.png",

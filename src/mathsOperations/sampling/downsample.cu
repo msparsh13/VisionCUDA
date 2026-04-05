@@ -6,7 +6,7 @@ __global__ void downsample(
     int channels,
     int scale);
 
-void downsample(unsigned char* d_in,
+void downsamplefunc(unsigned char* d_in,
                       unsigned char* d_out,
                       int width,
                       int height,

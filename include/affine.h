@@ -1,11 +1,13 @@
 #pragma once 
+#include <vector>
+
 enum TransformType {
     TRANSLATE,
     ROTATE,
     SHEAR
 };
 
-struct TransformOp {
+struct TransformOpr {
     TransformType type;
     float v1, v2;
 };
@@ -15,7 +17,7 @@ void affine_pipeline(unsigned char* img,
                      int width,
                      int height,
                      int channels,
-                     std::vector<TransformOp> vec);
+                     std::vector<TransformOpr> vec);
 
 void convert_to_translate(float tx, float ty, float mat[9]);
 

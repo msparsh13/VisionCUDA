@@ -1,11 +1,11 @@
 #pragma once
 #include "Operations.hpp"
-#include<affine.h>
+#include "affine.h"
 #include<vector>
 
 class AffineOp : public Operation {
 private:
-    std::vector<TransformOp> ops;
+    std::vector<TransformOpr> ops;
 
 public:
     void addTranslate(float tx, float ty);

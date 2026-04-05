@@ -17,7 +17,7 @@ void MatMulOp::apply(unsigned char*& d_data,
 
     float* d_C;
     cudaMalloc(&d_C, M * N * sizeof(float));
-    matMul(d_A, d_B, d_C, M, K, N);
+    mul(d_A, d_B, d_C, M, K, N);
     cudaFree(d_data);
     d_data = reinterpret_cast<unsigned char*>(d_C);
 

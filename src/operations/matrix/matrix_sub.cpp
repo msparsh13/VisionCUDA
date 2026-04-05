@@ -1,5 +1,6 @@
 #include<matrix.h>
 #include<matOp.hpp>
+#include <utility> 
 
 void SubtractOp::apply(unsigned char*& d_data,
                        unsigned char* d_temp,

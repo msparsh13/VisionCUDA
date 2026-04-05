@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <ErosionOp.hpp>
 #include <dilation.h>
+#include <utility> 
+
 void ErosionOp::apply(unsigned char *&d_data,
                       unsigned char *d_temp,
                       int &width,
