@@ -11,17 +11,19 @@ __global__ void uchar_to_float(unsigned char* in, float* out, int size);
 __global__ void float_to_uchar(float* in, unsigned char* out, int size);
 
 void ConvolutionOp::apply(unsigned char*& d_data,
-                          unsigned char* d_temp,
+                          unsigned char*&d_temp,
                           int& width,
                           int& height,
                           int& channels)
 {
     // if (isSeparable(kernelType))
     // {
+    unsigned char* d_intermediate;
+    cudaMalloc(&d_intermediate, width * height * channels);
        separable_convolution(
             d_data,
             d_temp,
-            d_temp,   // temp reused internally
+            d_intermediate,   // temp reused internally
             width,
             height,
             channels,
@@ -43,7 +45,7 @@ void ConvolutionOp::apply(unsigned char*& d_data,
     //     );
     // }
   
-
+cudaFree(d_intermediate);
     cudaDeviceSynchronize();
       std::swap(d_data, d_temp);
 

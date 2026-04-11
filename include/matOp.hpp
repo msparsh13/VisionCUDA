@@ -7,7 +7,7 @@ public:
     AddOp(unsigned char* other) : d_other(other) {}
 
     void apply(unsigned char*& d_data,
-               unsigned char* d_temp,
+               unsigned char*&d_temp,
                int& width,
                int& height,
                int& channels) override;
@@ -23,7 +23,7 @@ public:
     SubtractOp(unsigned char* other) : d_other(other) {}
 
     void apply(unsigned char*& d_data,
-               unsigned char* d_temp,
+               unsigned char*&d_temp,
                int& width,
                int& height,
                int& channels) override;
@@ -39,7 +39,7 @@ public:
     ScaleOp(int factor) : factor(factor) {}
 
     void apply(unsigned char*& d_data,
-               unsigned char* d_temp,
+               unsigned char*&d_temp,
                int& width,
                int& height,
                int& channels) override;
@@ -55,7 +55,7 @@ public:
         : d_B(d_B), M(M), K(K), N(N) {}
 
     void apply(unsigned char*& d_data,
-               unsigned char* d_temp,
+               unsigned char*&d_temp,
                int& width,
                int& height,
                int& channels) override;

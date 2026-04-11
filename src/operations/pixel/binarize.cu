@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <stdio.h>
 void BinarizeOp::apply(unsigned char *&d_data,
-                       unsigned char *d_temp,
+                       unsigned char *&d_temp,
                        int &width,
                        int &height,
                        int &channels)

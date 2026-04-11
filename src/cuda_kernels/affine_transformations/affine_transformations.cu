@@ -32,7 +32,7 @@ __global__ void inverse_mapping(
     int out_idx = (y * width + x) * channels;
 
 
-  if (x0 < 0 || x0 >= width - 1 || y0 < 0 || y0 >= height - 1)
+  if (x0 < 0 || x0 >= width - 2 || y0 < 0 || y0 >= height - 2)
     {
         for (int c = 0; c < channels; c++)
             output[out_idx + c] = 0;

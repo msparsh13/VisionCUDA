@@ -11,7 +11,7 @@ KernelType kernelType,
 PaddingType padding);
 
 void convolve_tiled(float* d_input,
-                    float* d_output,
+                    float*& d_output,
                     int width,
                     int height,
                     int channels,
@@ -20,8 +20,8 @@ void convolve_tiled(float* d_input,
 
 
 void separable_convolution(unsigned char* d_input,
-                           unsigned char* d_output,
-                           unsigned char* d_temp,
+                           unsigned char*& d_output,
+                           unsigned char*&d_temp,
                            int width,
                            int height,
                            int channels,

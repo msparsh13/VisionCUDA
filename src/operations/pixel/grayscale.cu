@@ -3,7 +3,7 @@
 #include <utility> 
 
 void GrayscaleOp::apply(unsigned char *&d_data,
-                        unsigned char *d_temp,
+                        unsigned char *&d_temp,
                         int &width,
                         int &height,
                         int &channels)

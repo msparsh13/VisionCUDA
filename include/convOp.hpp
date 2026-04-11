@@ -17,7 +17,7 @@ public:
 
 
     void apply(unsigned char*& d_input,
-               unsigned char* d_output,
+               unsigned char*& d_output,
                int& width,
                int& height,
                int& channels) override;

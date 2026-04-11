@@ -79,11 +79,10 @@ void affine_pipeline(unsigned char *img,
         else if (op.type == SHEAR)
             convert_to_shear(op.v1, op.v2, temp);
 
-        float result[9];
-        multiply_cpu(temp, M, result);
 
-        for (int i = 0; i < 9; i++)
-            M[i] = result[i];
+        multiply_cpu(temp, M, M);
+
+       
     }
     float M_inv[9];
     inverse3x3(M, M_inv);

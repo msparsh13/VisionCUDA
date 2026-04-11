@@ -2,7 +2,7 @@
 #include<histogramEqlOp.hpp>
 
 void HistogramEqlOp::apply(unsigned char*& d_data,
-    unsigned char* d_temp,
+    unsigned char*&d_temp,
                                     int& width,
                                     int& height,
                                     int& channels)

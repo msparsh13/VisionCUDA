@@ -21,8 +21,9 @@ SRC = src/main.cu \
       $(wildcard src/operations/*/*.cpp) \
       $(wildcard src/operations/*/*.cu) \
       $(wildcard src/operations/*/*/*.cpp) \
-      $(wildcard src/operations/*/*/*.cu)
-
+      $(wildcard src/operations/*/*/*.cu) \
+       $(wildcard src/parser/*/*.cpp) \
+$(wildcard src/parser/*.cpp) \
 
 # Only matrix operations
 MATRIX_SRC = src/main.cu \

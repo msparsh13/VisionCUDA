@@ -3,7 +3,7 @@ __global__ void dilation_tiled( unsigned char *input,
     unsigned char *output, int width, int height,
                            int kSize);
 void dilation(unsigned char* d_img,
-              unsigned char* d_out,
+              unsigned char*& d_out,
               int width,
               int height,
               int kSize)

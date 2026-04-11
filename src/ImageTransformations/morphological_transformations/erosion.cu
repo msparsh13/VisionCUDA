@@ -3,7 +3,7 @@ __global__ void erosion_tiled(unsigned char *input,
                               unsigned char *output, int width, int height,
                               int kSize);
 void erosion(unsigned char *d_img,
-             unsigned char *d_out,
+             unsigned char *& d_out,
              int width,
              int height,
              int kSize)

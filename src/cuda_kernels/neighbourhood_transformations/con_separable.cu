@@ -1,6 +1,9 @@
 #define RADIUS 1
 #define BLOCK_SIZE 16
 
+// -------------------------
+// HORIZONTAL CONVOLUTION
+// -------------------------
 __global__ void conv_horizontal(
     unsigned char *input,
     unsigned char *output,
@@ -16,91 +19,21 @@ __global__ void conv_horizontal(
 
     int x = blockIdx.x * BLOCK_SIZE + tx;
     int y = blockIdx.y * BLOCK_SIZE + ty;
-    int base = (y * width + x) * channels;
+
     int shared_x = tx + RADIUS;
 
-    // load center pixel
-    for (int c = 0; c < channels; c++) {
-        if (x < width && y < height)
-            tile[ty][shared_x][c] = input[base + c];
-        else
-            tile[ty][shared_x][c] = 0;
-    }
-
-    // halo
-    if (tx < RADIUS)
+    // 🔹 Load full horizontal neighborhood (center + halo)
+    for (int k = -RADIUS; k <= RADIUS; k++)
     {
-        int left = x - RADIUS;
-        int right = x + BLOCK_SIZE;
-
-        for (int c = 0; c < channels; c++) {
-            tile[ty][tx][c] =
-                (left >= 0 && y < height) ? input[(y * width + left) * channels + c] : 0;
-
-            tile[ty][tx + BLOCK_SIZE + RADIUS][c] =
-                (right < width && y < height) ? input[(y * width + right) * channels + c] : 0;
-        }
-    }
-
-    __syncthreads();
-
-    if (x < width && y < height)
-    {
-        for (int c = 0; c < channels; c++)
-        {
-            float sum = 0;
-
-            for (int k = -RADIUS; k <= RADIUS; k++)
-                sum += tile[ty][shared_x + k][c] * kernel[RADIUS + k];
-
-            sum = fminf(fmaxf(sum, 0.0f), 255.0f);
-            output[base + c] = (unsigned char)(sum);
-        }
-    }
-}
-
-__global__ void conv_vertical(
-    unsigned char *input,
-    unsigned char *output,
-    float *kernel,
-    int width,
-    int height,
-    int channels)
-{
-    __shared__ float tile[BLOCK_SIZE + 2 * RADIUS][BLOCK_SIZE][4]; 
-
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-
-    int x = blockIdx.x * BLOCK_SIZE + tx;
-    int y = blockIdx.y * BLOCK_SIZE + ty;
-
-    int shared_y = ty + RADIUS;
-    int base = (y * width + x) * channels;
-    // 🔹 Load center pixels
-    for (int c = 0; c < channels; c++)
-    {
-        if (x < width && y < height)
-            tile[shared_y][tx][c] = input[base + c];
-        else
-            tile[shared_y][tx][c] = 0;
-    }
-
-    // 🔹 Load halo (top & bottom)
-    if (ty < RADIUS)
-    {
-        int top = y - RADIUS;
-        int bottom = y + BLOCK_SIZE;
+        int nx = x + k;
+        int sx = shared_x + k;
 
         for (int c = 0; c < channels; c++)
         {
-            // top halo
-            tile[ty][tx][c] =
-                (top >= 0 && x < width) ? input[(top * width + x) * channels + c] : 0;
-
-            // bottom halo
-            tile[ty + BLOCK_SIZE + RADIUS][tx][c] =
-                (bottom < height && x < width) ? input[(bottom * width + x) * channels + c] : 0;
+            if (nx >= 0 && nx < width && y < height)
+                tile[ty][sx][c] = input[(y * width + nx) * channels + c];
+            else
+                tile[ty][sx][c] = 0.0f;
         }
     }
 
@@ -109,6 +42,67 @@ __global__ void conv_vertical(
     // 🔹 Convolution
     if (x < width && y < height)
     {
+        int base = (y * width + x) * channels;
+
+        for (int c = 0; c < channels; c++)
+        {
+            float sum = 0.0f;
+
+            for (int k = -RADIUS; k <= RADIUS; k++)
+            {
+                sum += tile[ty][shared_x + k][c] * kernel[RADIUS + k];
+            }
+
+            sum = fminf(fmaxf(sum, 0.0f), 255.0f);
+            output[base + c] = (unsigned char)(sum);
+        }
+    }
+}
+
+
+// -------------------------
+// VERTICAL CONVOLUTION
+// -------------------------
+__global__ void conv_vertical(
+    unsigned char *input,
+    unsigned char *output,
+    float *kernel,
+    int width,
+    int height,
+    int channels)
+{
+    __shared__ float tile[BLOCK_SIZE + 2 * RADIUS][BLOCK_SIZE][4];
+
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+
+    int x = blockIdx.x * BLOCK_SIZE + tx;
+    int y = blockIdx.y * BLOCK_SIZE + ty;
+
+    int shared_y = ty + RADIUS;
+
+    // 🔹 Load full vertical neighborhood (center + halo)
+    for (int k = -RADIUS; k <= RADIUS; k++)
+    {
+        int ny = y + k;
+        int sy = shared_y + k;
+
+        for (int c = 0; c < channels; c++)
+        {
+            if (ny >= 0 && ny < height && x < width)
+                tile[sy][tx][c] = input[(ny * width + x) * channels + c];
+            else
+                tile[sy][tx][c] = 0.0f;
+        }
+    }
+
+    __syncthreads();
+
+    // 🔹 Convolution
+    if (x < width && y < height)
+    {
+        int base = (y * width + x) * channels;
+
         for (int c = 0; c < channels; c++)
         {
             float sum = 0.0f;
@@ -118,9 +112,7 @@ __global__ void conv_vertical(
                 sum += tile[shared_y + k][tx][c] * kernel[RADIUS + k];
             }
 
-            // clamp to [0,255]
             sum = fminf(fmaxf(sum, 0.0f), 255.0f);
-
             output[base + c] = (unsigned char)(sum);
         }
     }

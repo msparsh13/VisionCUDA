@@ -13,7 +13,7 @@ public:
     void addShear(float shx, float shy);
 
     void apply(unsigned char*& d_data,
-                unsigned char* d_out,
+                unsigned char*& d_out,
                int& width,
                int& height,
                int& channels) override;

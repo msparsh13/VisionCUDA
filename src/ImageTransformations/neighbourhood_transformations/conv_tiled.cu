@@ -30,7 +30,7 @@ __global__ void conv_tiled(
     int kSize);
 
 void convolve_tiled(float* d_input,
-                    float* d_output,
+                    float*& d_output,
                     int width,
                     int height,
                     int channels,
@@ -89,8 +89,8 @@ __global__ void conv_horizontal(
     int channels);
 
 void separable_convolution(unsigned char* d_input,
-                           unsigned char* d_output,
-                           unsigned char* d_temp,
+                           unsigned char*& d_output,
+                           unsigned char*&d_temp,
                            int width,
                            int height,
                            int channels,
@@ -144,8 +144,8 @@ void separable_convolution(unsigned char* d_input,
 
 
 // void convolve(float* d_input,
-//               float* d_output,
-//               float* d_temp,
+//               float*& d_output,
+//               float*&d_temp,
 //               int width,
 //               int height,
 //               KernelType kernelType,
