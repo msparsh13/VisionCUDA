@@ -1,18 +1,20 @@
-// ImageOps.cu (continue)
+
 #include<matOp.hpp>
 #include<matrix.h>
 #include <utility> 
+#include <stdexcept>
 
-// 🔹 ADD
+#include <stdexcept>
+
 void AddOp::apply(unsigned char*& d_data,
-                  unsigned char*&d_temp,
+                  unsigned char*& d_temp,
                   int& width,
                   int& height,
                   int& channels)
 {
-    add(d_data, d_other, d_temp, width, height, channels);
-
-    // 🔥 swap
+    if (width != other.w || height != other.h || channels != other.c) {
+        throw std::runtime_error("AddOp: Image size mismatch");
+    }
+    add(d_data, other.data, d_temp, width, height, channels);
     std::swap(d_data, d_temp);
 }
-

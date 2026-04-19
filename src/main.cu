@@ -54,20 +54,21 @@ int main(int argc, char **argv)
     // 🔹 Pipeline
     Pipeline p;
     p.init(width, height, channels);
-
-    // 🔥 BUILD FROM JSON (instead of hardcoded ops)
     buildPipelineFromJSON(jsonPath, p);
 
-    // -----------------------------
-    // 🚀 RUN PIPELINE
-    // -----------------------------
+    try {
     p.run(d_data, width, height, channels);
+}
+catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+}
 
     cudaDeviceSynchronize();
+size_t out_size = (size_t)width * height * channels;
 
-    // 🔹 Copy back
-    unsigned char *h_out = new unsigned char[size];
-    cudaMemcpy(h_out, d_data, size * sizeof(unsigned char), cudaMemcpyDeviceToHost);
+unsigned char *h_out = new unsigned char[out_size];
+
+cudaMemcpy(h_out, d_data, out_size * sizeof(unsigned char), cudaMemcpyDeviceToHost);
 
     // 🔹 Save output (auto-detect extension)
     if (outputPath.find(".png") != std::string::npos)

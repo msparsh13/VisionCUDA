@@ -23,6 +23,7 @@ SRC = src/main.cu \
       $(wildcard src/operations/*/*/*.cpp) \
       $(wildcard src/operations/*/*/*.cu) \
        $(wildcard src/parser/*/*.cpp) \
+       $(wildcard src/parser/*/*.cu) \
 $(wildcard src/parser/*.cpp) \
 
 # Only matrix operations

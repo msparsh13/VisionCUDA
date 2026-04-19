@@ -14,6 +14,17 @@
 #include<convOp.hpp>
 #include<pipeline.hpp>
 #include<parserHelper.hpp>
+#include<brightnessOp.hpp>
+#include<gammaOp.hpp>
+#include<negativeOp.hpp>
+#include<logOp.hpp>
+#include<openingOp.hpp>
+#include<closingOp.hpp>
+#include<SamplingOp.hpp>
+#include<histogramEqlOp.hpp>
+#include<matOp.hpp>
+#include<dilationOp.hpp>
+#include<erosionOp.hpp>
 
 using namespace rapidjson;
 
@@ -26,3 +37,4 @@ KernelType parseKernel(const std::string& k);
 PaddingType parsePadding(const std::string& p);
 void handleAffine(const Value& step, Pipeline& p);
 void buildPipelineFromJSON(const std::string& filename, Pipeline& p);
+GpuImage loadImageToGPU(const std::string& path);

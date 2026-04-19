@@ -1,37 +1,40 @@
 #pragma once
 #include "Operations.hpp"
 
+
+struct GpuImage {
+    unsigned char* data;
+    int w, h, c;
+};
 class AddOp : public Operation
 {
 public:
-    AddOp(unsigned char* other) : d_other(other) {}
+    AddOp(GpuImage other): other(other){};
 
     void apply(unsigned char*& d_data,
-               unsigned char*&d_temp,
+               unsigned char*& d_temp,
                int& width,
                int& height,
                int& channels) override;
 
 private:
-    unsigned char* d_other; // second image
+    GpuImage other;
 };
-
 
 class SubtractOp : public Operation
 {
 public:
-    SubtractOp(unsigned char* other) : d_other(other) {}
+     SubtractOp(GpuImage other): other(other){};
 
-    void apply(unsigned char*& d_data,
-               unsigned char*&d_temp,
+     void apply(unsigned char*& d_data,
+               unsigned char*& d_temp,
                int& width,
                int& height,
                int& channels) override;
 
 private:
-    unsigned char* d_other;
+    GpuImage other;
 };
-
 
 class ScaleOp : public Operation
 {

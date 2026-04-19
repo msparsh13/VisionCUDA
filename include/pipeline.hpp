@@ -5,7 +5,7 @@
 class Pipeline {
     std::vector<Operation*> ops;
     unsigned char* d_temp = nullptr;
-
+    size_t capacity = 0;
 public:
     void add(Operation* op);
     void init(int width, int height , int channels);
@@ -14,4 +14,5 @@ public:
              int& width,
              int& height,
              int& channels);
+    void ensureCapacity(int width, int height, int channels);
 };

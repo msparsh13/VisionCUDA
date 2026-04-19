@@ -33,8 +33,57 @@ std::unordered_map<std::string, OpHandler> buildRegistry() {
         handleAffine(step, p);
     };
 
+    reg["brightness"] = [](const Value& step, Pipeline& p){
+        int alpha = step["contrast_gain"].GetInt();
+        int beta = step["brightness_offset"].GetInt();
+        p.add( new BrightnessOp(alpha , beta)) ;
+    };
 
-   
+    reg["gamma"] = [](const Value& step, Pipeline& p){
+        int gamma = step["gamma"].GetInt();
+        
+        p.add(new GammaOp(gamma)) ;
+    };
+
+     reg["log_transform"] = [](const Value& step, Pipeline& p){
+        int val = step["value"].GetInt();
+        
+        p.add(new LogOp(val)) ;
+    };
+
+     reg["histogram_eql"] = [](const Value& step, Pipeline& p){
+        p.add(new HistogramEqlOp()) ;
+    };
+
+    reg["add_img"]=[](const Value& step, Pipeline& p){
+        GpuImage img = loadImageToGPU(step["image"].GetString());
+        p.add(new AddOp(img));
+  };
+
+    reg["sub_img"]=[](const Value& step, Pipeline& p){
+        GpuImage img = loadImageToGPU(step["image"].GetString());
+        p.add(new SubtractOp(img));
+  };
+ 
+  reg["upsample"]=[](const Value& step, Pipeline& p){
+        float scale = step["scale"].GetFloat();
+        p.add(new SamplingOp(SamplingType::UPSAMPLE , scale));
+  };
+
+   reg["downsample"]=[](const Value& step, Pipeline& p){
+        float scale = step["scale"].GetFloat();
+        p.add(new SamplingOp(SamplingType::DOWNSAMPLE , scale));
+  };
+
+   reg["dilate"]=[](const Value& step, Pipeline& p){
+        int kernel_size = step["kernel_size"].GetInt();
+        p.add(new DilationOp( kernel_size));
+  };
+
+  reg["erosion"]=[](const Value& step, Pipeline& p){
+        int kernel_size = step["kernel_size"].GetInt();
+        p.add(new ErosionOp( kernel_size));
+  };
     return reg;
 }
 

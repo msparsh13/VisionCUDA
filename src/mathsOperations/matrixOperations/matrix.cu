@@ -1,6 +1,6 @@
 #include <cuda_runtime.h>
 #include <stdio.h>
-
+#include<error_handling/cuda_err.hpp>
 #define TILE 16
 
 
@@ -39,7 +39,8 @@ void add(unsigned char* A,
     dim3 grid((width + 15) / 16, (height + 15) / 16);
 
     add_img<<<grid, block>>>(A, B, out, width, height, channels);
-    cudaDeviceSynchronize();
+    CUDA_CHECK(cudaGetLastError());
+CUDA_CHECK(cudaDeviceSynchronize());
 }
 
 void subtract(unsigned char* A,
@@ -53,7 +54,6 @@ void subtract(unsigned char* A,
     dim3 grid((width + 15) / 16, (height + 15) / 16);
 
     subtract_img<<<grid, block>>>(A, B, out, width, height, channels);
-    cudaDeviceSynchronize();
 }
 
 
@@ -67,7 +67,6 @@ void scale(unsigned char* img,
     dim3 grid((width + 15) / 16, (height + 15) / 16);
 
     scale_img<<<grid, block>>>(img, width, height, channels, factor);
-    cudaDeviceSynchronize();
 }
 
 void mul(float* d_A,
@@ -82,5 +81,4 @@ void mul(float* d_A,
     size_t shared_mem = 2 * TILE * TILE * sizeof(float);
 
     multiply_cuda<<<grid, block, shared_mem>>>(d_A, d_B, d_C, M, K, N);
-    cudaDeviceSynchronize();
 }

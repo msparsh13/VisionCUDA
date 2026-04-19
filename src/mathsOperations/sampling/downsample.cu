@@ -1,3 +1,4 @@
+#include<error_handling/cuda_err.hpp>
 
 __global__ void downsample(
     unsigned char *input,
@@ -21,5 +22,5 @@ void downsamplefunc(unsigned char* d_in,
               (new_h + 16 - 1) / 16);
 
     downsample<<<grid, block>>>(d_in, d_out, width, height, channels, scale);
-    cudaDeviceSynchronize();
+        CUDA_CHECK(cudaGetLastError());
 }

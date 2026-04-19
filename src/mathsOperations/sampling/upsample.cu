@@ -1,3 +1,5 @@
+#include<error_handling/cuda_err.hpp>
+
 __global__ void upsample(unsigned char* input , unsigned char* output , int width , int height , int scale , int channels)
 ;
 
@@ -17,5 +19,5 @@ void upsamplefunc(unsigned char* d_in,
               (new_h + block.y - 1) / block.y);
 
     upsample<<<grid, block>>>(d_in, d_out, width, height, scale, channels);
-    cudaDeviceSynchronize();
+        CUDA_CHECK(cudaGetLastError());
 }

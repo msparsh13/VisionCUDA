@@ -3,45 +3,36 @@
 
 #include<stdio.h>
 
+
+
+
 void SamplingOp::apply(unsigned char*& d_data,
-                       unsigned char*&d_temp,  
+                       unsigned char*& d_temp,
                        int& width,
                        int& height,
                        int& channels)
 {
-    unsigned char* d_out = nullptr;
-
+    int new_width, new_height;
     if (type == SamplingType::UPSAMPLE)
     {
-        int new_width  = width * scale;
-        int new_height = height * scale;
+        new_width  = width * scale;
+        new_height = height * scale;
 
-        size_t new_size = new_width * new_height * channels;
-        cudaMalloc(&d_out, new_size);
-
-        upsamplefunc(d_data, d_out, width, height, scale, channels);
-
-        width  = new_width;
-        height = new_height;
+        upsamplefunc(d_data, d_temp, width, height, scale, channels);
     }
     else if (type == SamplingType::DOWNSAMPLE)
     {
-        int new_width  = width / scale;
-        int new_height = height / scale;
+        new_width  = width / scale;
+        new_height = height / scale;
 
-        size_t new_size = new_width * new_height * channels;
-        cudaMalloc(&d_out, new_size);
-
-        downsamplefunc(d_data, d_out, width, height, scale, channels);
-
-        width  = new_width;
-        height = new_height;
+        downsamplefunc(d_data, d_temp, width, height, scale, channels);
     }
     else
     {
         printf("SamplingOp: Unknown type\n");
         return;
     }
-    cudaFree(d_data);
-    d_data = d_out;
+    std::swap(d_data, d_temp);
+    width  = new_width;
+    height = new_height;
 }
