@@ -75,6 +75,7 @@ The system utilizes a **Registry Pattern** to decouple the JSON parsing logic fr
 5. **Output:** Transfers processed data back to the host and saves the final image.
 
 ### Project Structure
+```bash
 VisionCUDA/
 ├── src/
 │   ├── ops/         # CUDA kernels & operation logic
@@ -85,7 +86,7 @@ VisionCUDA/
 ├── output/          # Build artifacts
 ├── Makefile
 └── pipeline.json
-
+```
 ---
 
 ## 🚧 Current Limitations & Roadmap
