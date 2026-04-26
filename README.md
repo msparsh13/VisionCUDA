@@ -74,19 +74,6 @@ The system utilizes a **Registry Pattern** to decouple the JSON parsing logic fr
 4. **CUDA Dispatcher:** Allocates device memory and launches asynchronous kernels.
 5. **Output:** Transfers processed data back to the host and saves the final image.
 
-### Project Structure
-```bash
-VisionCUDA/
-├── src/
-│   ├── ops/         # CUDA kernels & operation logic
-│   ├── parser/      # JSON parser & registry
-│   ├── pipeline/    # Execution logic
-│   └── main.cpp
-├── include/         # Headers
-├── output/          # Build artifacts
-├── Makefile
-└── pipeline.json
-```
 ---
 
 ## 🚧 Current Limitations & Roadmap
